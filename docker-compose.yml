@@ -1,0 +1,30 @@
+services:
+  twofa:
+    build:
+      context: .
+      dockerfile: Dockerfile.twofa
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - twofa-data:/app/data
+    environment:
+      DATABASE_URL: sqlite:////app/data/twofa.db
+
+  employee-mgmt:
+    build:
+      context: ./employee-mgmt
+    ports:
+      - "8080:8080"
+    environment:
+      TWOFA_BASE_URL: http://twofa:8000
+      SPRING_DATASOURCE_URL: jdbc:sqlite:/data/employees.db
+    volumes:
+      - employee-data:/data
+    depends_on:
+      - twofa
+
+volumes:
+  twofa-data:
+  employee-data:

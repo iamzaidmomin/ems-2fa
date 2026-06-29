@@ -1,0 +1,7 @@
+__pycache__
+*.pyc
+.venv
+.env
+twofa.db
+employee-mgmt/target
+*.db
