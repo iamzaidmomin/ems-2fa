@@ -7,9 +7,18 @@ services:
     environment:
       BAO_DEV_ROOT_TOKEN_ID: root
       BAO_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      BAO_ADDR: http://127.0.0.1:8200
+      BAO_TOKEN: root
     cap_add:
       - IPC_LOCK
-    command: server -dev
+    command: >-
+      /bin/sh -c "
+      bao server -dev &
+      until wget -qO- http://127.0.0.1:8200/v1/sys/health >/dev/null 2>&1; do sleep 1; done;
+      echo 'Initializing OpenBao secret store';
+      export BAO_ADDR=http://127.0.0.1:8200; export BAO_TOKEN=root; 
+      bao kv put secret/smtp SMTP_HOST=${SMTP_HOST:-smtp.gmail.com} SMTP_PORT=${SMTP_PORT:-587} SMTP_USER=${SMTP_USER:-demo@example.com} SMTP_PASSWORD=${SMTP_PASSWORD:-demo-password} SMTP_FROM=${SMTP_FROM:-demo@example.com};
+      wait"
   twofa:
     build:
       context: .
@@ -22,6 +31,10 @@ services:
       - twofa-data:/app/data
     environment:
       DATABASE_URL: sqlite:////app/data/twofa.db
+      OPENBAO_ADDR: http://openbao:8200
+      OPENBAO_TOKEN: root
+    depends_on:
+      - openbao
 
   employee-mgmt:
     build:
