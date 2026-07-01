@@ -45,4 +45,20 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    settings = Settings()
+        # Try to load SMTP secrets from OpenBao
+    try:
+        bao = OpenBaoService()
+        smtp = bao.get_smtp_config()
+
+        settings.SMTP_HOST = smtp["SMTP_HOST"]
+        settings.SMTP_PORT = smtp["SMTP_PORT"]
+        settings.SMTP_USER = smtp["SMTP_USER"]
+        settings.SMTP_PASSWORD = smtp["SMTP_PASSWORD"]
+        settings.SMTP_FROM = smtp["SMTP_FROM"]
+
+    except Exception:
+        # Fall back to .env if OpenBao is unavailable
+        pass
+
+    return settings
