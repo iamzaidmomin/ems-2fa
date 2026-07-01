@@ -3,6 +3,8 @@ from functools import lru_cache
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.services.openbao import OpenBaoService
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
@@ -46,7 +48,7 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     settings = Settings()
-        # Try to load SMTP secrets from OpenBao
+
     try:
         bao = OpenBaoService()
         smtp = bao.get_smtp_config()
@@ -56,7 +58,6 @@ def get_settings() -> Settings:
         settings.SMTP_USER = smtp["SMTP_USER"]
         settings.SMTP_PASSWORD = smtp["SMTP_PASSWORD"]
         settings.SMTP_FROM = smtp["SMTP_FROM"]
-
     except Exception:
         # Fall back to .env if OpenBao is unavailable
         pass
