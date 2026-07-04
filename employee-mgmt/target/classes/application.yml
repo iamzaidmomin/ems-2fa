@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: employee-mgmt
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:sqlite:./employees.db}
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    show-sql: false
+
+server:
+  port: 8080
+
+twofa:
+  base-url: ${TWOFA_BASE_URL:http://localhost:8000}
