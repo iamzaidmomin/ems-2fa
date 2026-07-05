@@ -9,6 +9,9 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.community.dialect.SQLiteDialect
     show-sql: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    schema-registry-url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
 
 server:
   port: 8080

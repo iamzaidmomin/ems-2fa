@@ -1,0 +1,13 @@
+{
+  "namespace": "com.twofa.ems.avro",
+  "type": "record",
+  "name": "EmployeeEvent",
+  "fields": [
+    {"name": "id", "type": "long"},
+    {"name": "name", "type": "string"},
+    {"name": "email", "type": "string"},
+    {"name": "department", "type": ["null", "string"], "default": null},
+    {"name": "position", "type": ["null", "string"], "default": null},
+    {"name": "timestamp", "type": "long"}
+  ]
+}

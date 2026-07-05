@@ -14,9 +14,11 @@ import java.util.Locale;
 public class EmployeeService {
 
     private final EmployeeRepository repository;
+    private final com.twofa.ems.kafka.ProducerService producerService;
 
-    public EmployeeService(EmployeeRepository repository) {
+    public EmployeeService(EmployeeRepository repository, com.twofa.ems.kafka.ProducerService producerService) {
         this.repository = repository;
+        this.producerService = producerService;
     }
 
     public List<Employee> findAll() {
@@ -35,7 +37,15 @@ public class EmployeeService {
         }
         Employee employee = new Employee();
         apply(employee, request, email);
-        return repository.save(employee);
+        Employee saved = repository.save(employee);
+        // Publish event to Kafka (Avro serialized)
+        try {
+            producerService.publishEmployeeEvent(saved.getId(), saved.getName(), saved.getEmail(), saved.getDepartment(), saved.getPosition());
+        } catch (Exception e) {
+            // Non-fatal: log and continue
+            System.err.println("Failed to publish employee event: " + e.getMessage());
+        }
+        return saved;
     }
 
     public Employee update(Long id, EmployeeRequest request) {
